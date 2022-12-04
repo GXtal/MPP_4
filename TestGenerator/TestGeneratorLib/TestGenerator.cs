@@ -7,6 +7,48 @@ namespace TestGeneratorLib
     public class TestGenerator
     {
         private readonly string NamespaceName = "tempnamespace";
+
+        public async Task<List<Test>?> GenerateForFile(string src)
+        {
+            List<Test>? tests = null;
+            // parse input
+            var root = CSharpSyntaxTree.ParseText(src).GetCompilationUnitRoot();
+
+            if (root == null)
+            {
+                return null;
+            }
+
+            tests = new List<Test>();
+
+            // get all namespaces to add them to usings
+            var namespaces = root.DescendantNodes().OfType<NamespaceDeclarationSyntax>();
+
+            // get all using directives and classes declarations
+            List<UsingDirectiveSyntax> usings = root.DescendantNodes().OfType<UsingDirectiveSyntax>().
+                Where(u => !u.StaticKeyword.HasTrailingTrivia).ToList();
+
+            // add to using
+            foreach (var n in namespaces)
+            {
+                usings.Add(SyntaxFactory.UsingDirective(n.Name));
+            }
+
+            //we are making this for nunit))
+            usings.Add(
+                SyntaxFactory.UsingDirective(SyntaxFactory.IdentifierName("NUnit.Framework"))
+            );
+
+            var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>()
+                .Where(_class => _class.Modifiers.Any(SyntaxKind.PublicKeyword));
+
+            foreach (var c in classes)
+            {
+                tests.Add(GenerateTest(c, usings));
+            }
+
+            return tests;
+        }
         private Test GenerateTest(ClassDeclarationSyntax classDeclaration, List<UsingDirectiveSyntax> _usings)
         {
             var className = classDeclaration.Identifier.Text;
