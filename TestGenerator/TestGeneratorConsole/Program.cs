@@ -5,10 +5,25 @@ namespace TestGeneratorConsole
     {
         static async Task Main(string[] args)
         {
-            PipeLine a = new PipeLine(4, 4, 4);
+            string srcDir,resDir;
+            Console.WriteLine("Доброе утро! Введите папку, из которой взять файлы классов для генерации тестов");
+            srcDir=Console.ReadLine();
+            Console.WriteLine("Введите папку, куда сохранить итоговые файлы тестов");
+            resDir=Console.ReadLine();
+            int maxReadingTask;
+            int maxProcessingTask;
+            int maxWritingTask;
+            Console.WriteLine("количесвто потоков чтения файлов");
+            maxReadingTask = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("количесвто потоков обработки файлов");
+            maxProcessingTask = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("количесвто потоков записи файлов");
+            maxWritingTask = Convert.ToInt32(Console.ReadLine());
 
-            await a.Process(@"F:\5 sem\спп\MPP_1\Tracer\TracerLib", @"F:\5 sem\спп\res");
-            
+            PipeLine pipeLine = new PipeLine(maxReadingTask, maxProcessingTask, maxWritingTask);
+            await pipeLine.Process(srcDir, resDir);
+
+
         }
     }
 }
