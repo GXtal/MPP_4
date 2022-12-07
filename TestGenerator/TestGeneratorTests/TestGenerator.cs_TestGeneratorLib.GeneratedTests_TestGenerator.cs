@@ -10,6 +10,33 @@ namespace TestGeneratorLib.GeneratedTests
     [TestFixture]
     public class TestOfTestGenerator
     {
+
+        [Test]
+        public async Task GenerateForFile_EmptyFile_Test()
+        {
+            //Arrange
+            TestGenerator generator = new TestGenerator();
+
+            string content;
+            string file = @"F:\5 sem\ñïï\test files\empty.cs";
+
+            //act
+            using (var sr = new StreamReader(file))
+            {
+                content = sr.ReadToEnd();
+            }
+
+            var tests = await generator.GenerateForFile(content);
+
+            //assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(tests, Is.Not.EqualTo(null));
+                Assert.That(tests.Count, Is.EqualTo(0));
+            });
+
+        }
+
         [Test]
         public async Task GenerateForFile_OneFileOneClass_Test()
         {
